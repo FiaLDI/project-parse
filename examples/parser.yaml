@@ -1,0 +1,17 @@
+# Example local override. Copy to project root as parser.yaml.
+scan:
+  jobs: 0
+  exclude:
+    - "**/node_modules/**"
+    - "**/.git/**"
+
+plugins:
+  disabled: []
+
+report:
+  formats: [json, markdown]
+  output_dir: "./.project-parser"
+
+log:
+  level: info
+  format: text

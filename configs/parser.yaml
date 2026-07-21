@@ -1,0 +1,46 @@
+scan:
+  root: "."
+  jobs: 0
+  max_file_bytes: 2097152
+  follow_symlinks: false
+  include: []
+  exclude:
+    - "**/node_modules/**"
+    - "**/.git/**"
+    - "**/vendor/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/.next/**"
+    - "**/target/**"
+    - "**/__pycache__/**"
+
+plugins:
+  enabled:
+    - node
+    - python
+    - golang
+    - rust
+    - java
+    - docker
+    - git
+    - githubactions
+    - kubernetes
+    - database
+    - architecture
+    - documentation
+  disabled: []
+
+report:
+  formats:
+    - json
+    - markdown
+  output_dir: "./.project-parser"
+  include_evidence: true
+
+graph:
+  enabled: true
+  format: svg
+
+log:
+  level: info
+  format: text
