@@ -26,7 +26,7 @@ func newGraphCmd() *cobra.Command {
 			if len(args) == 1 {
 				root = args[0]
 			}
-			g, data, err := a.Graph(cmd.Context(), app.GraphOptions{
+			art, err := a.Graph(cmd.Context(), app.GraphOptions{
 				Root:   root,
 				Format: format,
 				OutDir: outDir,
@@ -34,11 +34,13 @@ func newGraphCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "nodes: %d\nedges: %d\nrendered: %d bytes\n", len(g.Nodes), len(g.Edges), len(data))
+			fmt.Fprintf(cmd.OutOrStdout(), "nodes: %d\n", len(art.Graph.Nodes))
+			fmt.Fprintf(cmd.OutOrStdout(), "edges: %d\n", len(art.Graph.Edges))
+			fmt.Fprintf(cmd.OutOrStdout(), "rendered %s (%d bytes) → %s\n", art.Format, len(art.Bytes), art.Path)
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&format, "format", "", "graph format (default: svg)")
+	cmd.Flags().StringVar(&format, "format", "", "graph format: svg, graph-json (alias: json)")
 	cmd.Flags().StringVar(&outDir, "out", "", "output directory")
 	return cmd
 }

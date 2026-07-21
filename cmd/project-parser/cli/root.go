@@ -7,9 +7,17 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/FiaLDI/project-parse/internal/app"
+	"github.com/FiaLDI/project-parse/internal/analyzer"
+	"github.com/FiaLDI/project-parse/internal/cache"
 	"github.com/FiaLDI/project-parse/internal/config"
+	"github.com/FiaLDI/project-parse/internal/graph"
 	"github.com/FiaLDI/project-parse/internal/logger"
+	"github.com/FiaLDI/project-parse/internal/output"
+	"github.com/FiaLDI/project-parse/internal/plugins"
+	"github.com/FiaLDI/project-parse/internal/ports"
 	"github.com/FiaLDI/project-parse/internal/registry"
+	"github.com/FiaLDI/project-parse/internal/report"
+	"github.com/FiaLDI/project-parse/internal/scanner"
 	"github.com/FiaLDI/project-parse/internal/version"
 )
 
@@ -51,6 +59,7 @@ func newRootCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVar(&opts.logFormat, "log-format", "", "override log format (text|json)")
 	cmd.PersistentFlags().IntVar(&opts.jobs, "jobs", -1, "worker pool size (0=NumCPU, -1=use config)")
 
+	cmd.AddCommand(newConfigCmd())
 	cmd.AddCommand(newScanCmd())
 	cmd.AddCommand(newReportCmd())
 	cmd.AddCommand(newGraphCmd())
@@ -85,10 +94,27 @@ func bootstrap() error {
 	}
 
 	reg := registry.New()
-	// Plugins are registered in later stages.
+	fileCache := cache.New(cache.Options{MaxFileBytes: cfg.Scan.MaxFileBytes})
+	plugins.RegisterAll(reg, fileCache)
+
+	fsScanner := scanner.New()
+	pluginAnalyzer := analyzer.New(analyzer.Options{Jobs: cfg.EffectiveJobs(), Log: log})
 
 	application = app.New(cfg, log, app.Deps{
+		Scanner:  fsScanner,
+		Cache:    fileCache,
 		Registry: reg,
+		Analyzer: pluginAnalyzer,
+		Agg:      report.New(),
+		Graph:    graph.New(),
+		Renderers: []ports.Renderer{
+			output.NewJSON(),
+			output.NewMarkdown(),
+			output.NewHTML(),
+			output.NewSVG(),
+			output.NewGraphJSON(),
+			output.NewPDF(),
+		},
 	})
 	return nil
 }

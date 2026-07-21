@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/FiaLDI/project-parse/internal/domain"
+	"github.com/FiaLDI/project-parse/internal/output"
 )
 
 // ReportOptions controls report generation for a single invocation.
@@ -87,9 +88,13 @@ func (a *App) Report(ctx context.Context, opts ReportOptions) ([]ReportArtifact,
 		if rerr != nil {
 			return nil, fmt.Errorf("render %s: %w", format, rerr)
 		}
+		path, writeErr := output.WriteFile(outDir, format, data)
+		if writeErr != nil {
+			return nil, fmt.Errorf("write %s: %w", format, writeErr)
+		}
 		artifacts = append(artifacts, ReportArtifact{
 			Format: format,
-			Path:   outDir,
+			Path:   path,
 			Bytes:  data,
 		})
 	}

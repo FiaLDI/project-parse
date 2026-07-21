@@ -72,14 +72,28 @@ func (a *App) Doctor(ctx context.Context) (DoctorResult, error) {
 		Name:     "scanner",
 		OK:       a.scanner != nil,
 		Critical: false,
-		Message:  checkMsg(a.scanner != nil, "scanner injected", "scanner not wired yet (pending stage)"),
+		Message:  checkMsg(a.scanner != nil, "scanner injected", "scanner not wired"),
+	})
+
+	res.Checks = append(res.Checks, DoctorCheck{
+		Name:     "analyzer",
+		OK:       a.analyzer != nil,
+		Critical: false,
+		Message:  checkMsg(a.analyzer != nil, "analyzer injected", "analyzer not wired"),
+	})
+
+	res.Checks = append(res.Checks, DoctorCheck{
+		Name:     "graph",
+		OK:       a.graph != nil,
+		Critical: false,
+		Message:  checkMsg(a.graph != nil, "graph builder injected", "graph builder not wired"),
 	})
 
 	res.Checks = append(res.Checks, DoctorCheck{
 		Name:     "registry",
 		OK:       a.registry != nil,
 		Critical: false,
-		Message:  checkMsg(a.registry != nil, "plugin registry injected", "registry not wired yet (pending stage)"),
+		Message:  checkMsg(a.registry != nil, "plugin registry injected", "registry not wired"),
 	})
 
 	return res, nil
